@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.an.viewpagerexample2.R;
+import com.an.viewpagerexample2.dto.BeanItem;
 import com.an.viewpagerexample2.dto.BeanNews;
 
 public class PagerFragment extends Fragment {
@@ -23,12 +24,12 @@ public class PagerFragment extends Fragment {
 
     // Other objects
     private Activity mActivity;
-    private BeanNews mNews;
+    private BeanItem mItem;
 
-    public static PagerFragment newInstance(BeanNews newsObject) {
+    public static PagerFragment newInstance(BeanItem itemObject) {
         PagerFragment fragment = new PagerFragment();
         Bundle bundle = new Bundle();
-        bundle.putSerializable(ARG_PARAM_1, newsObject);
+        bundle.putSerializable(ARG_PARAM_1, itemObject);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -63,13 +64,13 @@ public class PagerFragment extends Fragment {
         Log.d(TAG, "OnResume() on fragment: PagerFragment");
 
         if (getArguments() != null) {
-            mNews = (BeanNews) getArguments().getSerializable(ARG_PARAM_1);
+            mItem = (BeanItem) getArguments().getSerializable(ARG_PARAM_1);
         }
 
-        if (mNews != null) {
-            mTvNewsIdAndTitle.setText("News ID: " + mNews.getNewsId() + " | Title: " + mNews.getNewsTitle());
-            mTvNewsDateTime.setText(mNews.getNewsDateTime());
-            mTvNewsDescription.setText(mNews.getNewsDescription());
+        if (mItem != null) {
+            mTvNewsIdAndTitle.setText("ID: " + mItem.getId() + " | User ID: " + mItem.getUserId());
+            mTvNewsDateTime.setText(mItem.getTitle());
+            mTvNewsDescription.setText(mItem.getBody());
         }
     }
 }

@@ -2,12 +2,23 @@ package com.an.viewpagerexample2.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.an.viewpagerexample2.R;
 import com.an.viewpagerexample2.adapters.ViewPagerAdapter;
 import com.an.viewpagerexample2.custom.VerticalViewPager;
+import com.an.viewpagerexample2.dto.BeanItem;
 import com.an.viewpagerexample2.dto.BeanNews;
 import com.an.viewpagerexample2.fragments.PagerFragment;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 
@@ -27,21 +38,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initView();
+        callEndpoint();
     }
 
     private void initView() {
         mVvpMainPager = findViewById(R.id.activity_main_vvp_main_pager);
-
-        setupViewPager();
     }
 
-    private void setupViewPager() {
+    private void setupViewPager(BeanItem[] data) {
         mPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        for (BeanNews news : generateSampleNewsData()) {
-            mPagerAdapter.addFragment(PagerFragment.newInstance(news), "News " + news.getNewsId());
+        for (BeanItem item : data) {
+            mPagerAdapter.addFragment(PagerFragment.newInstance(item), "Item " + item.getId());
         }
         mVvpMainPager.setAdapter(mPagerAdapter);
-        mVvpMainPager.setOffscreenPageLimit(generateSampleNewsData().size());
+        mVvpMainPager.setOffscreenPageLimit(data.length);
     }
 
     private ArrayList<BeanNews> generateSampleNewsData() {
@@ -90,5 +100,31 @@ public class MainActivity extends AppCompatActivity {
         newsList.add(news7);
 
         return newsList;
+    }
+
+    private void callEndpoint() {
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        final String url = "https://jsonplaceholder.typicode.com/posts";
+
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                try {
+                    Gson gson = new Gson();
+                    BeanItem[] data = gson.fromJson(response.toString(), BeanItem[].class);
+                    Log.d(TAG, "Array Size:  " + data.length);
+
+                    setupViewPager(data);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "Volley_Error: " + error.getMessage());
+            }
+        });
+        requestQueue.add(jsonObjectRequest);
     }
 }
